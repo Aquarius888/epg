@@ -10,10 +10,8 @@ RUN mkdir -pv \
 
 RUN pip3 install bottle requests
 
-COPY web.py /epg
-COPY get_data.py /epg
-COPY main.tpl /epg
-COPY gaps_overlaps.tpl /epg
+COPY *.py /epg/
+COPY *.tpl /epg/
 COPY entrypoint.sh /usr/sbin/entrypoint
 RUN chmod 0777 /usr/sbin/entrypoint
 
