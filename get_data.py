@@ -9,9 +9,6 @@ today = dt.today().strftime("%Y%m%d")
 period = 7
 timeframe_type = 'previous'
 
-country_acr = ['NL']
-language = ['nld']
-
 acronym_lang = {'NL': 'nld', 'AT': 'deu', 'CH': 'eng', 'CZ': 'ces', 'HU': 'eng', 'PL': 'pol', 'RO': 'eng', 'SK':'eng'}
 
 source_url = 'web-api-prod-obo.horizon.tv'
@@ -68,7 +65,7 @@ def get_main_data(schedule_json, channel_prog, missing_epg, id_title):
     return channel_prog, missing_epg
 
 
-def get_overlap_and_gap(channel_prog, gap_size=3):
+def get_overlap_and_gap(channel_prog, gap_size=10000):
     """
     Derives info about overlaps and gaps from program line
     :param channel_prog: structure ('dict') with info about all programs for period/country
@@ -79,49 +76,27 @@ def get_overlap_and_gap(channel_prog, gap_size=3):
     _start = 1
     _end = 2
     overlap, gap = dict(), dict()
+    missing_epg = list()
     for channel, dict_prog in channel_prog.items():
+
         try:
             prev_program = dict_prog.popitem(last=False)
+            prev_times = prev_program[_start]
 
             for crid, times in dict_prog.items():
-                prev_times = prev_program[_start]
                 if crid != prev_program[_id] and times[_start] < prev_times[_end]:
-                    overlap.setdefault(channel, []).append((prev_times[0], prev_program[_id],
-                                                            date_format(prev_times[_end]),
-                                                            times[0], crid, date_format(times[_start])))
+                    overlap.setdefault(channel, []).append((prev_program[_id], prev_program[_start], crid, times))
                 if crid != prev_program[_id] and times[_start] - prev_times[_end] > gap_size:
-                    gap.setdefault(channel, []).append((prev_times[0], prev_program[_id],
-                                                        date_format(prev_times[_end]),
-                                                        times[0], crid, date_format(times[_start])))
+                    gap.setdefault(channel, []).append((prev_program[_id], prev_program[_start], crid, times))
                 prev_program = (crid, times)
+                prev_times = prev_program[_start]
         except KeyError:
-            print('{} empty dictionary?!'.format(channel))
-    return overlap, gap
+            missing_epg.append(channel)
+    return overlap, gap, missing_epg
 
 
 def date_format(seconds):
     return str(dt.strptime(time.ctime(int(seconds) / 1000), '%a %b %d %H:%M:%S %Y'))
-
-
-def get_html_from_dict_list(dict_list):
-    """
-    Converts 'dict_list' to html string (table)
-    :param dict_list: input structure
-    :return: string with html tags
-    """
-    html_string = ""
-    for ch, gaps_list in dict_list.items():
-        html_table = "<table border=1>{}</table>"
-        cells = ""
-        channel_row = '<tr bgcolor="#ddd"><th width="100px">{channel}</th>{line}</tr>'
-        for frame in gaps_list:
-            first_title, first_id, first_end, next_title, next_id, next_start = frame
-            cells += '<td>{} {}<br><i>{}</i> <br>{} {}<br><i>{}</i></td>'. \
-                format(first_title, first_end, first_id,
-                       next_title, next_start, next_id)
-        html_string += html_table.format(channel_row.format(channel=ch, line=cells))
-
-    return html_string
 
 
 for acr, lang in acronym_lang.items():
@@ -140,12 +115,18 @@ for acr, lang in acronym_lang.items():
     missing_epg = dict()
 
     for url in schedule_url_list:
-        channel_prog, _ = get_main_data(get_response_json(url), channel_prog, missing_epg, id_title_stations)
+        channel_prog, m_epg = get_main_data(get_response_json(url), channel_prog, missing_epg, id_title_stations)
 
-    overlap, gap = get_overlap_and_gap(channel_prog)
+    overlap, gap, miss_epg = get_overlap_and_gap(channel_prog)
 
-    with open('/epg/static_files/gap_{}.txt'.format(acr), 'w', encoding='utf-8') as file:
+    # with open('./static_files/line_{}.txt'.format(acr), 'w', encoding='utf-8') as file:
+    #     file.write(json.dumps(channel_prog))
+
+    with open('./static_files/gap_{}.txt'.format(acr), 'w', encoding='utf-8') as file:
         file.write((json.dumps(gap)))
 
-    with open('/epg/static_files/overlap_{}.txt'.format(acr), 'w', encoding='utf-8') as file:
+    with open('./static_files/overlap_{}.txt'.format(acr), 'w', encoding='utf-8') as file:
         file.write((json.dumps(overlap)))
+
+    with open('./static_files/m_epg_{}.txt'.format(acr), 'w', encoding='utf-8') as file:
+        file.write((json.dumps(m_epg)))
