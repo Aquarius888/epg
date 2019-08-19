@@ -1,3 +1,6 @@
+% from datetime import datetime as dt
+% from datetime import timedelta
+
 <!DOCTYPE html>
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
  <title>EPG DATA</title>
@@ -16,12 +19,18 @@
    color: black;
    }
   div.vertical-line{
-   width: 2px;
+   width: 1px;
    background-color: #ddd;
    position: absolute;
-   top: 5px;
+   top: 0;
    left: 0;
    }
+  div.time{
+   background: #ccc;
+   position: relative;
+   padding-left: 0px;
+   top: 0;
+  }
   #box {
    position: relative;
    z-index: 1;
@@ -36,51 +45,45 @@
  </style>
 
  <body>
-    <p>
-    <b>Line</b>&emsp;
-     <a href="/main/line_NL" class="not-active">NL</a>
-     <a href="/main/line_AT" class="not-active">AT</a>
-     <a href="/main/line_CH" class="not-active">CH</a>
-     <a href="/main/line_CZ" class="not-active">CZ</a>
-     <a href="/main/line_HU" class="not-active">HU</a>
-     <a href="/main/line_PL" class="not-active">PL</a>
-     <a href="/main/line_RO" class="not-active">RO</a>
-     <a href="/main/line_SK" class="not-active">SK</a>
-     &emsp;&emsp;
-    <b>GAPs</b>&emsp;
-     <a href="/gap_NL">NL</a>
-     <a href="/gap_AT">AT</a>
-     <a href="/gap_CH">CH</a>
-     <a href="/gap_CZ">CZ</a>
-     <a href="/gap_HU">HU</a>
-     <a href="/gap_PL">PL</a>
-     <a href="/gap_RO">RO</a>
-     <a href="/gap_SK">SK</a>
-     &emsp;&emsp;
-    <b>Overlap</b>&emsp;
-     <a href="/overlap_NL">NL</a>
-     <a href="/overlap_AT">AT</a>
-     <a href="/overlap_CH">CH</a>
-     <a href="/overlap_CZ">CZ</a>
-     <a href="/overlap_HU">HU</a>
-     <a href="/overlap_PL">PL</a>
-     <a href="/overlap_RO">RO</a>
-     <a href="/overlap_SK">SK</a>
-    &emsp;&emsp;
-    <b>Missing EPG</b>&emsp;
-     <a href="/miss/m_epg_NL">NL</a>
-     <a href="/miss/m_epg_AT">AT</a>
-     <a href="/miss/m_epg_CH">CH</a>
-     <a href="/miss/m_epg_CZ">CZ</a>
-     <a href="/miss/m_epg_HU">HU</a>
-     <a href="/miss/m_epg_PL">PL</a>
-     <a href="/miss/m_epg_RO">RO</a>
-     <a href="/miss/m_epg_SK">SK</a>
-    </p>&nbsp;
+    <form action="/" method="post">
+    <select size="1" name="date">
+       <option value={{today.strftime("%Y%m%d")}}>{{today.strftime("%Y-%m-%d")}}</option>
+         % for day in dates[::-1]:
+             <option value={{day.strftime("%Y%m%d")}}>{{day.strftime("%Y-%m-%d")}}</option>
+         % end
+    </select>
+
+    <select size=1 name="type">
+       <option value="line">Line</option>
+       <option value="gap">Gap</option>
+       <option value="overlap">Overlap</option>
+       <option value="missing">Missing Data</option>
+    </select>
+
+    <select size=1 name="country">
+       <option value="NL">NL</option>
+       <option value="AT">AT</option>
+       <option value="CH">CH</option>
+       <option value="CZ">CZ</option>
+       <option value="HU">HU</option>
+       <option value="PL">PL</option>
+       <option value="RO">RO</option>
+       <option value="SK">SK</option>
+    </select>
+
+      <input value="*Show me what U got*" type="submit">
+    </form>
+
    <div id="box"><div id="boxa"></div>
    <div style="width: 40945px; display: block; clear: both;">
    <div style="background: #ccc; width: 132px; float: left; margin-right: 3px; margin-bottom: 3px;">&nbsp;</div>
-   <div style="background: #ccc; width: 3117px; float: left; margin-right: 10px; margin-bottom: 3px;">
-   <b>&nbsp;</b>
+   <div style="background: #ccc; width: 5760px; float: left; margin-right: 10px; margin-bottom: 3px;">
+   <b>&nbsp;{{date}}</b>
+   <!---
+       % for i in range(24):
+           % offset = (i * 240)+135
+           <div class="vertical-line" id="verticalline" style="left: {{offset}}px; height: 700px;"></div>
+       % end
+       --->
    </div></div>
 </body>

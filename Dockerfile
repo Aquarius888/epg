@@ -6,11 +6,14 @@ RUN set -ex \
 
 RUN mkdir -pv \
      /epg \
-     /epg/static_files
+     /epg/static_files \
+     /epg/config
 
 RUN pip3 install bottle requests
 
-COPY *.py /epg/
+COPY web.py /epg/
+COPY get_data.py /epg/
+COPY settings.py /epg/config
 COPY *.tpl /epg/
 COPY entrypoint.sh /usr/sbin/entrypoint
 RUN chmod 0777 /usr/sbin/entrypoint
