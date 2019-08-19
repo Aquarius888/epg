@@ -15,6 +15,6 @@ The EPG PoC is some ideas with meaning - How to implement EPG
  * build Docker image
  ```docker build --network=host -t epg-poc:0.1 .```
  * run Docker instance 
- ```docker run --rm -ti --network host -p 8080 epg-poc:0.1```
+ ```docker run --rm -ti --network host -p 8080 -v /etc/localtime:/etc/localtime:ro epg-poc:0.1```
  * got to a web browser and use an address http://localhost:8080
  * wait 2-3 minutes during first run, ETL extracts data from API
