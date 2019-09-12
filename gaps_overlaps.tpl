@@ -8,15 +8,17 @@
 
    %for ch, gaps_list in rows.items():
 
-       <div style="width:40945px;display:block;clear:both;">
-       <div style="background:#ccc;
+       % ch_number, ch_title = ch.split('|')
+           <div style="width:40945px;display:block;clear:both;">
+           <div style="background:#ccc;
                    height:64px;
                    width:132px;
                    float:left;
                    line-height: 64px;
                    margin-right:3px;
-                   margin-bottom:3px;">
-       <b>{{ch}}</b></div>
+                   margin-bottom:3px;" title="{{ch_number}}_{{ch_title}}">
+
+           <b>{{ch_title}}</b></div>
 
        % for frame in gaps_list:
            % first_id, first_times, next_id, next_times = frame

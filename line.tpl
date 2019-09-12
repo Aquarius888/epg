@@ -1,7 +1,6 @@
 % from datetime import datetime as dt
 % import time
 
-<div style="width:40945px;display:block;clear:both;">
   <style>
    .channel {
     background: #ccc;
@@ -22,39 +21,75 @@
     margin-bottom:3px;
     white-space:nowrap;
     overflow:hidden;
-    padding:5px;
+    padding:5px 0px;
     text-overflow:ellipsis;
    }
+  div.vertical-line{
+   width: 1px;
+   background-color: #ddd;
+   position: absolute;
+   top: 0;
+   left: 0;
+   }
   </style>
+
+
+
+   % now = time.time()
+   % today = time.gmtime(now)
+   % seconds_in_day = 86400
+   % date_format = '%Y/%m/%d %H:%M:%S'
+   % str_format = '{}/{}/{} 00:00:00'
+   % midnight_struct_time = time.strptime(str_format.format(today.tm_year, today.tm_mon, today.tm_mday), date_format)
+   % midnight_in_seconds = time.mktime(midnight_struct_time)
+   % begin = midnight_in_seconds-2*seconds_in_day
+
+   % offset = (now - begin)/15 + 135
+     <div class="vertical-line" id="verticalline" style="left: {{offset}}px; height: 1700px;"></div>
+
    % for ch, line_dct in rows:
        % if line_dct:
-           <div style="width:40945px;display:block;clear:both;">
-           <div class="channel">
-           <b>{{ch}}</b></div>
+           % ch_color = '#ccc'
+           % ch_number, ch_title = ch.split('|')
+           <div style="width:18000px;display:block;clear:both;">
+           % if '#ccc' not in list(line_dct.values())[0]:
+               % ch_color = '#dfb'
+           % end
+           <div class="channel" title="{{ch_number}}_{{ch_title}}" style="background: {{ch_color}}">
+
+           <b>{{ch_title}}</b></div>
+
        % for prog_id, times in line_dct.items():
-           % title, start, end = times
+           % title, start, end, replay = times
 
            % # width compute
            % st = start
-           % if st < date*1000:
-               % st = date*1000
+
+           % if st < begin*1000:
+               % st = begin*1000
            % end
+
            % delta = int(end) - int(st)
            % width = delta / 15000
-           % if width == 0:
+           % if width < 0:
                % continue
            % end
 
-           % start = str(dt.strptime(time.ctime(int(start) / 1000), '%a %b %d %H:%M:%S %Y'))
-           % end = str(dt.strptime(time.ctime(int(end) / 1000), '%a %b %d %H:%M:%S %Y'))
-           <div class="prog" style="width: {{width - 3}}px;"
+           % # color of box
+           % color = replay
+
+           % start = time.ctime(int(start) / 1000)
+           % end = time.ctime(int(end) / 1000)
+           <div class="prog" style="width: {{width - 3}}px; background: {{color}};"
            title="
+           {{ch_number}}_{{ch_title}}
            {{title}}
+           {{prog_id}}
            {{start}}
            {{end}}">
-               {{title}}<br><br>{{start.split()[1]}}<br>{{end.split()[1]}}
+               {{title}}<br><br>{{start.split()[3]}}<br>{{end.split()[3]}}
            </div>
        % end
      </div>
    % end
-</div>
+

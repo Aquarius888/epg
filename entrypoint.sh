@@ -8,5 +8,8 @@ crond
 
 trap "echo \"stopping cron\"; kill \$!; exit" SIGINT SIGTERM
 cd /epg
-python3 /epg/get_data.py &
+
+python3 /epg/get_data.py - start &&
+python3 /epg/get_data.py - fill &&
+
 python3 /epg/web.py
